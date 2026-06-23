@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Rating and Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:        #1566DF;
+  --text:        #212121;
+  --text-muted:  #9E9E9E;
+  --text-label:  #616161;
+  --border:      #E0E0E0;
+  --bg-header:   #F5F5F5;
+  --bg:          #FFFFFF;
+  --amber:       #F59E0B;
+}
+
+body {
+  background: #F0F0F0;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  padding: 32px 16px 64px;
+}
+
+.page { max-width: 980px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); }
+
+/* Header */
+.page-header { display: flex; align-items: flex-start; gap: 32px; padding: 24px 32px 20px; }
+.logo { flex-shrink:0; background:var(--blue); color:#fff; font-weight:700; font-size:15px; letter-spacing:0.18em; text-transform:uppercase; padding:9px 18px 9px 14px; clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) calc(100% - 14px),calc(100% - 14px) 100%,0 100%); line-height:1.4; white-space:nowrap; }
+.header-info { display:flex; flex-direction:column; gap:3px; }
+.header-title { font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
+.header-desc { font-size:13px; color:var(--text-label); line-height:1.55; margin-top:6px; max-width:680px; }
+
+/* Divider */
+.divider { height:1px; background:var(--border); margin:0 32px; }
+
+/* Billing */
+.billing { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:24px 32px 28px; }
+.billing-col + .billing-col { border-left:1px solid var(--border); padding-left:32px; }
+.billing-col-label { font-weight:700; font-size:13px; color:var(--text); margin-bottom:12px; }
+.billing-field { display:flex; flex-direction:column; gap:1px; margin-bottom:10px; }
+.field-label { font-size:13px; color:var(--text-muted); }
+.field-value { font-size:13px; color:var(--text); line-height:1.5; }
+.tags-wrap { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
+.tag { background:#EEF3FC; color:var(--blue); border-radius:3px; padding:3px 9px; font-size:13px; font-weight:500; }
+
+/* Task bars */
+.task-bar-row { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.task-bar-row:last-child { margin-bottom:0; }
+.task-bar-top { display:flex; justify-content:space-between; align-items:baseline; }
+.task-bar-label { font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
+.task-bar-num { font-size:13px; font-weight:700; color:var(--text); }
+.bar-track { height:4px; background:#E8E8E8; border-radius:2px; overflow:hidden; }
+.bar-fill { height:100%; background:var(--blue); border-radius:2px; width:0%; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
+
+/* Section header */
+.section-header { background:var(--bg-header); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:9px 32px; font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; }
+
+/* Rings */
+.ratings-section { padding:28px 32px 32px; border-bottom:1px solid var(--border); }
+.ratings-grid { display:flex; justify-content:space-around; gap:8px; flex-wrap:wrap; }
+.rating-item { display:flex; flex-direction:column; align-items:center; gap:10px; flex:1; min-width:110px; }
+.ring-wrap { position:relative; width:110px; height:110px; flex-shrink:0; }
+canvas.ring { width:110px; height:110px; display:block; }
+.ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; pointer-events:none; }
+.ring-pct { font-size:16px; font-weight:700; color:var(--text); line-height:1; }
+.ring-count { font-size:11px; color:var(--text-muted); line-height:1; }
+.rating-label { font-size:13px; font-weight:500; color:var(--text); text-align:center; }
+.rating-desc { font-size:13px; color:var(--text-muted); line-height:1.45; text-align:center; margin-top:6px; max-width:130px; }
+.ratings-period-label { font-size:13px; font-weight:700; color:var(--text); margin-bottom:20px; display:flex; align-items:center; gap:6px; }
+.ratings-period-meta { font-weight:400; color:var(--text-muted); margin-left:2px; }
+
+/* Table */
+.project-list-wrap { border-top:1px solid var(--border); }
+.project-list { width:100%; border-collapse:collapse; font-size:13px; }
+.project-list thead tr { background:var(--bg-header); border-bottom:1px solid var(--border); }
+.project-list thead th { padding:8px 12px; text-align:left; font-size:13px; font-weight:700; color:var(--text-muted); white-space:nowrap; }
+.project-list thead th.th-dots { text-align:center; }
+.project-list tbody tr { border-bottom:1px solid var(--border); }
+.project-list tbody tr:last-child { border-bottom:none; }
+.project-list tbody td { padding:9px 12px; color:var(--text); vertical-align:middle; }
+.td-client { font-size:13px; font-weight:500; color:var(--blue); white-space:nowrap; }
+.dots-row { display:flex; gap:6px; align-items:center; justify-content:center; }
+.score-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.score-dot.green { background:#1566DF; }
+.score-dot.amber { background:#F59E0B; }
+.score-dot.red   { background:#C62828; }
+.score-dot.gray  { background:#D5D5D5; }
+
+/* Legend */
+.table-legend { display:flex; gap:16px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
+
+/* Feedback */
+.comment-section { padding:20px 32px 28px; }
+.feedback-item { display:flex; flex-direction:column; gap:8px; }
+.feedback-text { font-size:14px; color:var(--text); line-height:1.6; }
+.feedback-meta { display:flex; align-items:center; gap:16px; }
+.feedback-author { font-size:13px; font-weight:500; color:var(--text); }
+.feedback-date { font-size:13px; color:var(--text-muted); }
+.feedback-divider { height:1px; background:var(--border); margin:18px 0; }
+.feedback-empty { font-size:13px; color:var(--text-muted); }
+
+/* Footer */
+.page-footer { border-top:1px solid var(--border); padding:12px 32px; font-size:13px; color:var(--text-muted); text-align:right; }
+
+@media print {
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  body { background:#fff; padding:0; }
+  .page { border:none; }
+}
+
+@media (max-width: 640px) {
+  .billing { grid-template-columns:1fr; }
+  .billing-col + .billing-col { border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:20px; margin-top:4px; }
+  .page-header, .divider, .billing, .ratings-section, .comment-section, .page-footer { padding-left:20px; padding-right:20px; }
+  .section-header { padding-left:20px; padding-right:20px; }
+}
+</style>
+</head>
+<body>
+<div class="page" id="page"></div>
+
+<script>
+/* ============================================================
+   DATA — заполни этот блок для каждого переводчика
+   ============================================================ */
+const DATA = {
+
+  linguist: {
+    name:           'Mohd Imran Mohamad Yusoff',
+    langPair:       'English → Malay (MS)',
+    specialization: [
+      'Automotive', 'Cars', 'Beauty & Fashion', 'Crypto', 'Accounting',
+      'Banking', 'Business', 'Economy', 'Finances', 'Gambling', 'Games',
+      'Mobile Games', 'Education', 'Cryptography', 'Databases', 'Hardware',
+      'IT', 'Software', 'Legal', 'Advertising', 'Marketing', 'Health',
+      'Mobile Applications', 'Geography', 'Statistics', 'Mechanics',
+      'Manuals', 'Machinery', 'Building & Construction', 'Engineering',
+      'Robotics', 'Technics', 'Tourism & Travel'
+    ]
+  },
+
+  tasks: {
+    thirty: 7,    // за последние 30 дней
+    ninety: 50,   // за последние 90 дней
+    year:   195   // за последние 12 месяцев
+  },
+
+  // Оценки за всё время
+  allTime: {
+    totalReviews: 29,
+    deadline:  { ok: 29, total: 29 },
+    response:  { ok: 29, total: 29 },
+    fit:       { ok: 28, total: 29 },
+    quality:   { ok: 28, total: 29 },
+    retention: { ok: 28, total: 29 }
+  },
+
+  // Таблица оценок — заголовок периода
+  monthLabel: 'May 2026',
+
+  // Строки таблицы
+  // score: 1 = зелёный, 0.5 = жёлтый, 0 = красный
+  ratings: [
+    { date: 'May 4',  manager: 'Xenia Dvarakouskaya', client: 'cztech',      dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 6',  manager: 'Inna Kravchonok',     client: 'transferwise', dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 7',  manager: 'Xenia Dvarakouskaya', client: 'cztech',      dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 7',  manager: 'Igor Golovin',         client: 'faceapp',     dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 12', manager: 'Nadzeya Roshchyna',   client: 'indriver',    dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 27', manager: 'Andrei Matselia',      client: 'musical',     dl:1, rs:1, pf:1, qs:1, rt:1 },
+    { date: 'May 27', manager: 'Xenia Dvarakouskaya', client: 'cztech',      dl:1, rs:1, pf:1, qs:1, rt:1 },
+  ],
+
+  // Фидбек — добавляй объекты { text, author, role, date }
+  // Оставь массив пустым, если фидбека нет
+  feedback: [],
+
+  dataDate: '23 June 2026'
+};
+
+/* ============================================================
+   RENDER — не трогай этот блок
+   ============================================================ */
+
+const METRICS = [
+  { key:'deadline', label:'Deadline',       desc:'Did you meet deadlines and communicate risks in advance?' },
+  { key:'response', label:'Response',       desc:'How quickly did you respond to emails, queries, or comments in the project?' },
+  { key:'fit',      label:'Project Fit',    desc:'Is your style/tone appropriate for the project?' },
+  { key:'quality',  label:'Quality Signals',desc:'Were there any good or bad quality-related issues reported by reviewers or clients?' },
+  { key:'retention',label:'Retention',      desc:'Would we be happy to collaborate again on future projects?' },
+];
+
+function pct(ok, total) { return total ? Math.round(ok / total * 1000) / 10 : 0; }
+function fmtPct(ok, total) { const p = pct(ok, total); return p === 100 ? '100%' : p.toFixed(1) + '%'; }
+function dotClass(score) { return score === 1 ? 'green' : score === 0.5 ? 'amber' : 'red'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderRingColor(ok, total) {
+  const p = pct(ok, total);
+  return p >= 99 ? '#1566DF' : p >= 85 ? '#F59E0B' : '#C62828';
+}
+
+function renderPage() {
+  const multiClient = true;
+  const maxTasks = Math.max(DATA.tasks.thirty, DATA.tasks.ninety, DATA.tasks.year) || 1;
+
+  // ── Specialization tags ──
+  const tags = DATA.linguist.specialization.map(s =>
+    `<span class="tag">${esc(s)}</span>`).join('');
+
+  // ── Task bars ──
+  const bars = [
+    { label: '30 days',   val: DATA.tasks.thirty },
+    { label: '90 days',   val: DATA.tasks.ninety },
+    { label: '12 months', val: DATA.tasks.year   },
+  ].map(b => `
+    <div class="task-bar-row">
+      <div class="task-bar-top">
+        <span class="task-bar-label">${b.label}</span>
+        <span class="task-bar-num">${b.val}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" data-w="${(b.val / maxTasks * 100).toFixed(1)}"></div></div>
+    </div>`).join('');
+
+  // ── Ring charts ──
+  const rings = METRICS.map((m, i) => {
+    const { ok, total } = DATA.allTime[m.key];
+    const color = renderRingColor(ok, total);
+    return `
+      <div class="rating-item">
+        <div class="ring-wrap">
+          <canvas class="ring" id="ring-${m.key}" width="220" height="220"></canvas>
+          <div class="ring-inner">
+            <span class="ring-pct" id="pct-${m.key}">0%</span>
+            <span class="ring-count">${ok} / ${total}</span>
+          </div>
+        </div>
+        <span class="rating-label">${m.label}</span>
+        <span class="rating-desc">${m.desc}</span>
+      </div>`;
+  }).join('');
+
+  // ── Table rows ──
+  const tableRows = DATA.ratings.map(r => {
+    const clientCell = multiClient
+      ? `<td class="td-client">${esc(r.client)}</td>` : '';
+    const scores = ['dl','rs','pf','qs','rt'].map(k =>
+      `<td><div class="dots-row"><span class="score-dot ${dotClass(r[k])}"></span></div></td>`
+    ).join('');
+    return `<tr><td>${esc(r.date)}</td><td>${esc(r.manager)}</td>${clientCell}${scores}</tr>`;
+  }).join('');
+
+  const clientHeader = multiClient ? '<th>Client</th>' : '';
+
+  // ── Feedback ──
+  let feedbackHtml;
+  if (!DATA.feedback.length) {
+    feedbackHtml = '<p class="feedback-empty">No feedback yet.</p>';
+  } else {
+    feedbackHtml = DATA.feedback.map((f, i) => `
+      ${i > 0 ? '<div class="feedback-divider"></div>' : ''}
+      <div class="feedback-item">
+        <p class="feedback-text">${esc(f.text)}</p>
+        <div class="feedback-meta">
+          <span class="feedback-author">${esc(f.author)}${f.role ? ', ' + esc(f.role) : ''}</span>
+          <span class="feedback-date">${esc(f.date)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('page').innerHTML = `
+    <div class="page-header">
+      <div class="logo">Alconost</div>
+      <div class="header-info">
+        <div class="header-title">Performance Rating and Feedback</div>
+        <div class="header-desc">Here you can view your project ratings and feedback. We share this information to promote transparency, recognize your contributions, support your professional growth, and help you track your progress across projects.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="billing">
+      <div class="billing-col">
+        <div class="billing-col-label">Linguist</div>
+        <div class="billing-field">
+          <span class="field-value" style="font-weight:500;">${esc(DATA.linguist.name)}</span>
+        </div>
+        <div class="billing-field">
+          <span class="field-label">Language pair</span>
+          <span class="field-value">${esc(DATA.linguist.langPair)}</span>
+        </div>
+        <div class="billing-field" style="margin-top:8px;">
+          <span class="field-label" style="margin-bottom:6px;display:block;">Specialization</span>
+          <div class="tags-wrap">${tags}</div>
+        </div>
+      </div>
+      <div class="billing-col">
+        <div class="billing-col-label">Tasks completed</div>
+        ${bars}
+      </div>
+    </div>
+
+    <div class="section-header">Project Ratings</div>
+
+    <div class="ratings-section">
+      <div class="ratings-period-label">All time <span class="ratings-period-meta">${DATA.allTime.totalReviews} reviews</span></div>
+      <div class="ratings-grid">${rings}</div>
+    </div>
+
+    <div class="section-header">
+      ${esc(DATA.monthLabel)} — Ratings by project
+      <span class="table-legend">
+        <span class="legend-item"><span class="score-dot green"></span> Good</span>
+        <span class="legend-item"><span class="score-dot amber"></span> Neutral</span>
+        <span class="legend-item"><span class="score-dot red"></span> Attention</span>
+      </span>
+    </div>
+    <div class="project-list-wrap">
+      <table class="project-list">
+        <thead>
+          <tr>
+            <th>Date</th><th>Manager</th>${clientHeader}
+            <th class="th-dots">Deadline</th>
+            <th class="th-dots">Response</th>
+            <th class="th-dots">Project Fit</th>
+            <th class="th-dots">Quality Signals</th>
+            <th class="th-dots">Retention</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+
+    <div class="section-header">Feedback</div>
+    <div class="comment-section">${feedbackHtml}</div>
+
+    <div class="page-footer">Data as of ${esc(DATA.dataDate)}</div>
+  `;
+}
+
+/* ============================================================
+   RINGS & BARS ANIMATION
+   ============================================================ */
+const TRACK = '#E8E8E8', LW = 14, SZ = 220, DURATION = 850;
+
+function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function drawRing(canvas, progress, value, color) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, SZ, SZ);
+  const cx = SZ/2, cy = SZ/2, r = cx - LW/2 - 5;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.strokeStyle=TRACK; ctx.lineWidth=LW; ctx.lineCap='butt'; ctx.stroke();
+  const sweep = Math.PI*2*value*progress;
+  if (sweep > 0.001) {
+    ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+sweep); ctx.strokeStyle=color; ctx.lineWidth=LW; ctx.lineCap='round'; ctx.stroke();
+  }
+}
+
+function animateRing(id, value, color, finalLabel, delay) {
+  const canvas = document.getElementById('ring-' + id);
+  const pctEl  = document.getElementById('pct-'  + id);
+  if (!canvas || !pctEl) return;
+  drawRing(canvas, 0, value, color);
+  const go = t0 => now => {
+    const raw = Math.min((now - t0) / DURATION, 1), p = ease(raw);
+    drawRing(canvas, p, value, color);
+    pctEl.textContent = Math.round(value * p * 100) + '%';
+    if (raw < 1) requestAnimationFrame(go(t0));
+    else { drawRing(canvas, 1, value, color); pctEl.textContent = finalLabel; }
+  };
+  setTimeout(() => requestAnimationFrame(n => requestAnimationFrame(go(n))), delay);
+}
+
+function animateBars() {
+  document.querySelectorAll('.bar-fill').forEach((el, i) => {
+    setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 500 + i * 120);
+  });
+}
+
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('canvas.ring').forEach(canvas => {
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
+    img.style.cssText = `width:${canvas.style.width||'110px'};height:${canvas.style.height||'110px'};display:block`;
+    img.classList.add('ring-print-img');
+    canvas.insertAdjacentElement('afterend', img);
+    canvas.style.display = 'none';
+  });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('canvas.ring').forEach(c => c.style.display = '');
+  document.querySelectorAll('.ring-print-img').forEach(img => img.remove());
+});
+
+// Init
+renderPage();
+
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+METRICS.forEach((m, i) => {
+  const { ok, total } = DATA.allTime[m.key];
+  const value = total ? ok / total : 0;
+  const color = renderRingColor(ok, total);
+  const label = fmtPct(ok, total);
+  if (reduced) {
+    const c = document.getElementById('ring-' + m.key); if(c) drawRing(c, 1, value, color);
+    const p = document.getElementById('pct-'  + m.key); if(p) p.textContent = label;
+  } else {
+    window.addEventListener('load', () => animateRing(m.key, value, color, label, i * 100));
+  }
+});
+if (reduced) {
+  document.querySelectorAll('.bar-fill').forEach(el => { el.style.transition='none'; el.style.width=el.dataset.w+'%'; });
+} else {
+  window.addEventListener('load', animateBars);
+}
+</script>
+</body>
+</html>
