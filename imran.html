@@ -262,7 +262,7 @@ function renderPage() {
   // ── Feedback ──
   let feedbackHtml;
   if (!DATA.feedback.length) {
-    feedbackHtml = '<p class="feedback-empty">No feedback yet.</p>';
+    feedbackHtml = '';
   } else {
     feedbackHtml = DATA.feedback.map((f, i) => `
       ${i > 0 ? '<div class="feedback-divider"></div>' : ''}
@@ -338,8 +338,7 @@ function renderPage() {
       </table>
     </div>
 
-    <div class="section-header">Feedback</div>
-    <div class="comment-section">${feedbackHtml}</div>
+    ${DATA.feedback.length ? `<div class="section-header">Feedback</div><div class="comment-section">${feedbackHtml}</div>` : ''}
 
     <div class="page-footer">Data as of ${esc(DATA.dataDate)}</div>
   `;
