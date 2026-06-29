@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Rating and Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:        #007AFF;
+  --text:        #1F1F1F;
+  --text-muted:  #9E9E9E;
+  --text-label:  #616161;
+  --border:      #E0E0E0;
+  --bg-header:   #F5F8FF;
+  --bg:          #FFFFFF;
+  --red:         #FF492C;
+}
+
+body {
+  background: #F0F4FF;
+  font-family: 'Noto Sans', Arial, sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  padding: 32px 16px 64px;
+}
+
+.page { max-width: 980px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+
+/* Header */
+.page-header { display: flex; align-items: flex-start; gap: 32px; padding: 24px 32px 20px; }
+.logo { flex-shrink:0; display:block; height:45px; width:auto; }
+.header-info { display:flex; flex-direction:column; gap:3px; }
+.header-title { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
+.header-desc { font-size:13px; color:var(--text-label); line-height:1.55; margin-top:6px; max-width:680px; }
+
+/* Divider */
+.divider { height:1px; background:var(--border); margin:0 32px; }
+
+/* Billing */
+.billing { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:24px 32px 28px; }
+.billing-col + .billing-col { border-left:1px solid var(--border); padding-left:32px; }
+.billing-col-label { font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.04em; color:var(--text); margin-bottom:12px; }
+.billing-field { display:flex; flex-direction:column; gap:1px; margin-bottom:10px; }
+.field-label { font-size:13px; color:var(--text-muted); }
+.field-value { font-size:13px; color:var(--text); line-height:1.5; }
+.tags-wrap { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
+.tag { background:#F5F8FF; color:var(--blue); border-radius:9999px; padding:3px 10px; font-size:13px; font-weight:500; }
+
+/* Task bars */
+.task-bar-row { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.task-bar-row:last-child { margin-bottom:0; }
+.task-bar-top { display:flex; justify-content:space-between; align-items:baseline; }
+.task-bar-label { font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
+.task-bar-num { font-size:13px; font-weight:700; color:var(--text); }
+.bar-track { height:4px; background:#E8E8E8; border-radius:2px; overflow:hidden; }
+.bar-fill { height:100%; background:var(--blue); border-radius:2px; width:0%; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
+
+/* Section header */
+.section-header { background:var(--bg-header); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:9px 32px; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text); display:flex; align-items:center; justify-content:space-between; }
+
+/* Rings */
+.ratings-section { padding:28px 32px 32px; border-bottom:1px solid var(--border); }
+.ratings-grid { display:flex; justify-content:space-around; gap:8px; flex-wrap:wrap; }
+.rating-item { display:flex; flex-direction:column; align-items:center; gap:10px; flex:1; min-width:110px; }
+.ring-wrap { position:relative; width:110px; height:110px; flex-shrink:0; }
+canvas.ring { width:110px; height:110px; display:block; }
+.ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; pointer-events:none; }
+.ring-pct { font-size:16px; font-weight:700; color:var(--text); line-height:1; }
+.ring-count { font-size:11px; color:var(--text-muted); line-height:1; }
+.rating-label { font-size:13px; font-weight:500; color:var(--text); text-align:center; }
+.rating-desc { font-size:13px; color:var(--text-muted); line-height:1.45; text-align:center; margin-top:6px; max-width:130px; }
+.ratings-period-label { font-size:13px; font-weight:700; color:var(--text); margin-bottom:20px; display:flex; align-items:center; gap:6px; }
+.ratings-period-meta { font-weight:400; color:var(--text-muted); margin-left:2px; }
+
+/* Table */
+.project-list-wrap { border-top:1px solid var(--border); }
+.project-list { width:100%; border-collapse:collapse; font-size:13px; }
+.project-list thead tr { background:var(--bg-header); border-bottom:1px solid var(--border); }
+.project-list thead th { padding:8px 12px; text-align:left; font-size:13px; font-weight:700; color:var(--text-muted); white-space:nowrap; }
+.project-list thead th.th-dots { text-align:center; }
+.project-list tbody tr { border-bottom:1px solid var(--border); }
+.project-list tbody tr:last-child { border-bottom:none; }
+.project-list tbody td { padding:9px 12px; color:var(--text); vertical-align:middle; }
+.td-client { font-size:13px; font-weight:500; color:var(--blue); white-space:nowrap; }
+.dots-row { display:flex; gap:6px; align-items:center; justify-content:center; }
+.score-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.score-dot.green { background:#27AE60; }
+.score-dot.amber { background:#1566DF; }
+.score-dot.red   { background:#FF492C; }
+.score-dot.gray  { background:#D5D5D5; }
+
+/* Legend */
+.table-legend { display:flex; gap:16px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
+
+/* Empty ratings state */
+.no-ratings { padding:40px 32px; text-align:center; }
+.no-ratings-icon { font-size:32px; margin-bottom:12px; color:var(--border); }
+.no-ratings-title { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.no-ratings-text { font-size:14px; color:var(--text-muted); line-height:1.6; max-width:400px; margin:0 auto; }
+
+/* Feedback */
+.comment-section { padding:20px 32px 28px; }
+.feedback-item { display:flex; flex-direction:column; gap:8px; }
+.feedback-text { font-size:14px; color:var(--text); line-height:1.6; }
+.feedback-meta { display:flex; align-items:center; gap:16px; }
+.feedback-author { font-size:13px; font-weight:500; color:var(--text); }
+.feedback-date { font-size:13px; color:var(--text-muted); }
+.feedback-divider { height:1px; background:var(--border); margin:18px 0; }
+
+/* AIQA section */
+.qacat-section { padding:24px 32px 28px; border-bottom:1px solid var(--border); }
+.qacat-meta { font-size:12px; color:var(--text-muted); margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.qacat-grid { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; }
+.qacat-score-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+.qacat-score-label { font-size:13px; font-weight:500; color:var(--text); }
+.qacat-score-ring { position:relative; width:110px; height:110px; }
+.qacat-score-ring canvas { width:110px; height:110px; display:block; }
+.qacat-score-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; pointer-events:none; }
+.qacat-score-num { font-size:16px; font-weight:700; color:var(--text); line-height:1; }
+.qacat-score-sub { font-size:11px; color:var(--text-muted); line-height:1; }
+.qacat-stats { display:flex; flex-direction:column; gap:10px; min-width:130px; }
+.qacat-stat { display:flex; flex-direction:column; gap:2px; }
+.qacat-stat-val { font-size:20px; font-weight:700; color:var(--text); line-height:1; }
+.qacat-stat-lbl { font-size:12px; color:var(--text-muted); }
+.qacat-bars { flex:1; min-width:200px; display:flex; flex-direction:column; gap:10px; }
+.qacat-bar-row { display:flex; flex-direction:column; gap:4px; }
+.qacat-bar-top { display:flex; justify-content:space-between; align-items:baseline; }
+.qacat-bar-label { font-size:13px; color:var(--text); }
+.qacat-bar-count { font-size:13px; font-weight:700; color:var(--text); }
+.qacat-bar-track { height:8px; background:#EEEEEE; border-radius:4px; overflow:hidden; }
+.qacat-bar-fill { height:100%; border-radius:4px; width:0; transition:width 0.9s cubic-bezier(0.4,0,0.2,1); }
+
+/* Summary */
+.summary-section { padding:24px 32px 32px; }
+.summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.summary-col + .summary-col { border-left:1px solid var(--border); padding-left:28px; }
+.summary-col-header { display:flex; align-items:center; gap:8px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; color:var(--text); margin-bottom:16px; }
+.summary-marker { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.summary-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.summary-item { font-size:14px; color:var(--text); line-height:1.6; padding-left:18px; position:relative; }
+.summary-item::before { content:''; position:absolute; left:0; top:8px; width:7px; height:7px; border-radius:50%; }
+.summary-item.strength::before { background:#00BF56; }
+.summary-item.improve::before { background:#FFBF42; }
+
+/* Qacat badge */
+.qacat-badge { display:inline-block; border-radius:9999px; padding:3px 12px; font-size:13px; font-weight:700; margin-top:6px; }
+
+/* Qacat multiple projects */
+.qacat-project { padding-top:20px; border-top:1px solid var(--border); }
+.qacat-project:first-child { border-top:none; padding-top:0; }
+.qacat-project + .qacat-project { margin-top:4px; }
+
+/* Footer */
+.page-footer { border-top:1px solid var(--border); padding:12px 32px; font-size:13px; color:var(--text-muted); text-align:right; }
+
+@media print {
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  body { background:#fff; padding:0; }
+  .page { border:none; }
+}
+
+@media (max-width: 640px) {
+  .billing { grid-template-columns:1fr; }
+  .billing-col + .billing-col { border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:20px; margin-top:4px; }
+  .page-header, .divider, .billing, .ratings-section, .comment-section, .page-footer { padding-left:20px; padding-right:20px; }
+  .section-header { padding-left:20px; padding-right:20px; }
+}
+</style>
+</head>
+<body>
+<div class="page" id="page"></div>
+
+<script>
+const DATA = {
+
+  linguist: {
+    name:           'Murni Binti Jamaludin',
+    langPair:       'English → Malay (MS)',
+    specialization: [
+      'Science', 'Medicine & Pharmacy', 'Manuals', 'IT', 'Health', 'Patents'
+    ]
+  },
+
+  tasks: {
+    thirty: 22,
+    ninety: 79,
+    year:   172
+  },
+
+  allTime: {
+    totalReviews: 30,
+    deadline:  { ok: 30, total: 30 },
+    response:  { ok: 30, total: 30 },
+    fit:       { ok: 30, total: 30 },
+    quality:   { ok: 30, total: 30 },
+  },
+
+  monthLabel: 'May 2026',
+
+  ratings: [
+    { date: 'May 6',  manager: 'Arina Shibaeva',      client: 'drivemode', dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 6',  manager: 'Kateryna Derevianko', client: 'onewin',    dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 6',  manager: 'Eugenia Romanenko',   client: 'howly',     dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 13', manager: 'Kateryna Derevianko', client: 'onewin',    dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 13', manager: 'Eugenia Romanenko',   client: 'howly',     dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 20', manager: 'Arina Shibaeva',      client: 'airalo',    dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 20', manager: 'Arina Shibaeva',      client: 'drivemode', dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 20', manager: 'Olga Matselya',       client: 'alconost',  dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 20', manager: 'Eugenia Romanenko',   client: 'howly',     dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 27', manager: 'Arina Shibaeva',      client: 'drivemode', dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 27', manager: 'Olga Matselya',       client: 'alconost',  dl:1, rs:1, pf:1, qs:1 },
+    { date: 'May 27', manager: 'Eugenia Romanenko',   client: 'howly',     dl:1, rs:1, pf:1, qs:1 },
+  ],
+
+  qacat: [],
+
+  feedback: [],
+
+  summary: {
+    strengths: [
+      'Perfect scores from all four managers in May — every criterion, every project.',
+      '100% rating across all 30 all-time reviews. A track record to be proud of.',
+    ],
+    improvements: [
+      'A perfect month — keep going exactly like this.',
+      'Your reliability makes a real difference to the teams you work with. That\'s worth a lot.',
+      'Nothing to flag here — just a genuine thank you for the consistent, quality work.',
+    ]
+  },
+
+  dataDate: '26 June 2026'
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+
+const METRICS = [
+  { key:'deadline', label:'Deadline',       desc:'Did you meet deadlines and communicate risks in advance?' },
+  { key:'response', label:'Response',       desc:'How quickly did you respond to emails, queries, or comments in the project?' },
+  { key:'fit',      label:'Project Fit',    desc:'Is your style/tone appropriate for the project?' },
+  { key:'quality',  label:'Quality Signals',desc:'Were there any good or bad quality-related issues reported by reviewers or clients?' },
+];
+
+function pct(ok, total) { return total ? Math.round(ok / total * 1000) / 10 : 0; }
+function fmtPct(ok, total) { const p = pct(ok, total); return p === 100 ? '100%' : p.toFixed(1) + '%'; }
+function dotClass(score) { return score === 1 ? 'green' : score === 0.5 ? 'amber' : 'red'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderRingColor(ok, total) {
+  const p = pct(ok, total);
+  return p >= 95 ? '#00BF56' : p >= 85 ? '#007AFF' : '#FF492C';
+}
+
+function qcatScoreColor(score, isLqa) {
+  if (isLqa) return score >= 95 ? '#00BF56' : score >= 92 ? '#FFBF42' : '#FF492C';
+  return score >= 95 ? '#00BF56' : score >= 85 ? '#007AFF' : '#FF492C';
+}
+
+function lqaBadge(score) {
+  if (score >= 95) return { text: 'Pass',      bg: '#E8F8EF', color: '#00873C' };
+  if (score >= 92) return { text: 'Attention', bg: '#FFF8E1', color: '#B45309' };
+  return              { text: 'Fail',      bg: '#FFF0EE', color: '#CC2A0E' };
+}
+
+function renderPage() {
+  const maxTasks = Math.max(DATA.tasks.thirty, DATA.tasks.ninety, DATA.tasks.year) || 1;
+
+  const tags = DATA.linguist.specialization.map(s =>
+    `<span class="tag">${esc(s)}</span>`).join('');
+
+  const bars = [
+    { label: '30 days',   val: DATA.tasks.thirty },
+    { label: '90 days',   val: DATA.tasks.ninety },
+    { label: '12 months', val: DATA.tasks.year   },
+  ].map(b => `
+    <div class="task-bar-row">
+      <div class="task-bar-top">
+        <span class="task-bar-label">${b.label}</span>
+        <span class="task-bar-num">${b.val}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" data-w="${(b.val / maxTasks * 100).toFixed(1)}"></div></div>
+    </div>`).join('');
+
+  const rings = METRICS.map((m) => {
+    const { ok, total } = DATA.allTime[m.key];
+    const color = renderRingColor(ok, total);
+    return `
+      <div class="rating-item">
+        <div class="ring-wrap">
+          <canvas class="ring" id="ring-${m.key}" width="220" height="220"></canvas>
+          <div class="ring-inner">
+            <span class="ring-pct" id="pct-${m.key}">0%</span>
+            <span class="ring-count">${ok} / ${total}</span>
+          </div>
+        </div>
+        <span class="rating-label">${m.label}</span>
+        <span class="rating-desc">${m.desc}</span>
+      </div>`;
+  }).join('');
+
+  const tableRows = DATA.ratings.map(r => {
+    const scores = ['dl','rs','pf','qs'].map(k =>
+      `<td><div class="dots-row"><span class="score-dot ${dotClass(r[k])}"></span></div></td>`
+    ).join('');
+    return `<tr><td>${esc(r.date)}</td><td>${esc(r.manager)}</td><td class="td-client">${esc(r.client)}</td>${scores}</tr>`;
+  }).join('');
+
+  const qcatHtml = DATA.qacat.map((q, qi) => {
+    const isLqa = q.report.trim().toUpperCase().startsWith('LQA');
+    const badge = isLqa ? lqaBadge(q.score) : null;
+    return `
+    <div class="qacat-project">
+      <div class="qacat-meta">
+        <span>${esc(q.report)}</span>
+        ${isLqa ? `<span class="table-legend">
+          <span class="legend-item"><span class="score-dot" style="background:#00BF56"></span> 95–100 Pass</span>
+          <span class="legend-item"><span class="score-dot" style="background:#FFBF42"></span> 92–94.99 Attention</span>
+          <span class="legend-item"><span class="score-dot" style="background:#FF492C"></span> &lt;92 Fail</span>
+        </span>` : ''}
+      </div>
+      <div class="qacat-grid">
+        <div class="qacat-score-wrap">
+          <div class="qacat-score-ring">
+            <canvas id="qacat-ring-${qi}" width="220" height="220"></canvas>
+            <div class="qacat-score-inner">
+              <span class="qacat-score-num">${q.score}</span>
+              <span class="qacat-score-sub">/ 100</span>
+            </div>
+          </div>
+          <span class="qacat-score-label">Quality Score</span>
+          ${badge ? `<span class="qacat-badge" style="background:${badge.bg};color:${badge.color}">${badge.text}</span>` : ''}
+        </div>
+        <div class="qacat-stats">
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.words.toLocaleString()}</span><span class="qacat-stat-lbl">Words</span></div>
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.errors}</span><span class="qacat-stat-lbl">Errors</span></div>
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.density}</span><span class="qacat-stat-lbl">Error density</span></div>
+        </div>
+        <div class="qacat-bars">
+          ${q.breakdown.map((b, i) => `
+          <div class="qacat-bar-row">
+            <div class="qacat-bar-top">
+              <span class="qacat-bar-label">${esc(b.label)}</span>
+              <span class="qacat-bar-count">${b.count}</span>
+            </div>
+            <div class="qacat-bar-track">
+              <div class="qacat-bar-fill" id="qbar-${qi}-${i}" style="background:${b.color}"></div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if (DATA.feedback.length) {
+    feedbackHtml = DATA.feedback.map((f, i) => `
+      ${i > 0 ? '<div class="feedback-divider"></div>' : ''}
+      <div class="feedback-item">
+        <p class="feedback-text">${esc(f.text)}</p>
+        <div class="feedback-meta">
+          <span class="feedback-author">${esc(f.author)}${f.role ? ', ' + esc(f.role) : ''}</span>
+          <span class="feedback-date">${esc(f.date)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('page').innerHTML = `
+    <div class="page-header">
+      <svg class="logo" width="258" height="45" viewBox="0 0 258 45" fill="none">
+        <polygon fill="#007AFF" points="147.909317 0 0 0 0 45 228.03354 45 228.03354 30 243 30 243 14.9464286 258 15 258 0"/>
+        <path d="M30,15 L30,30 L27.0290792,30 L27,24 L18.0473667,24 L18.0473667,30 L15,30 L15,15 L30,15 Z M199,15 L214,15 L214,18 L208,18 L208,30 L205,30 L205,18.0319149 L199,18.0319149 L199,15 Z M188,30 L173.01958,30 L173.01958,27 L185,27 L185,24 L173.01958,24 L173.01958,15 L188,15 L188,18.0319149 L176,18.0319149 L176,21 L188,21 L188,30 Z M135,30 L132,30 L132,18 L123,18.0319149 L123,30 L120,30 L120,15 L135,15 L135,30 Z M93,30 L93,15 L109,15 L109,30 L93,30 Z M96,27 L106,27 L106,18 L96,18 L96,27 Z M146,30 L146,15 L162,15 L162,30 L146,30 Z M149,27 L159,27 L159,18 L149,18 L149,27 Z M82,27 L82,30 L67,30 L67,15 L82,15 L82,18.0319149 L70,18.0319149 L70,27 L82,27 Z M41,30 L41,15 L44,15 L44,27 L56,27 L56,30 L41,30 Z M27,18.0319149 L18,18.0319149 L18,21 L27,21 L27,18.0319149 Z" fill="#FFF"/>
+      </svg>
+      <div class="header-info">
+        <div class="header-title">Performance Rating and Feedback</div>
+        <div class="header-desc">Here you can view your project ratings and feedback. We share this information to promote transparency, recognize your contributions, support your professional growth, and help you track your progress across projects.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="billing">
+      <div class="billing-col">
+        <div class="billing-col-label">Linguist</div>
+        <div class="billing-field">
+          <span class="field-value" style="font-weight:500;">${esc(DATA.linguist.name)}</span>
+        </div>
+        <div class="billing-field">
+          <span class="field-label">Language pair</span>
+          <span class="field-value">${esc(DATA.linguist.langPair)}</span>
+        </div>
+        <div class="billing-field" style="margin-top:8px;">
+          <span class="field-label" style="margin-bottom:6px;display:block;">Specialization</span>
+          <div class="tags-wrap">${tags}</div>
+        </div>
+      </div>
+      <div class="billing-col">
+        <div class="billing-col-label">Tasks completed</div>
+        ${bars}
+      </div>
+    </div>
+
+    ${(() => {
+      const hasAllTime = DATA.allTime.totalReviews > 0;
+      const hasMonthly = DATA.ratings.length > 0;
+      const hasQacat   = DATA.qacat.length > 0;
+      if (!hasAllTime && !hasMonthly && !hasQacat) return `
+        <div class="section-header">Project Ratings</div>
+        <div class="no-ratings">
+          <div class="no-ratings-title">No ratings yet</div>
+          <div class="no-ratings-text">As soon as your managers share their ratings, we'll make them available here.</div>
+        </div>`;
+      if (!hasAllTime && !hasMonthly) return '';
+      return `
+        ${hasAllTime ? `
+        <div class="section-header">
+          Project Ratings
+          <span class="table-legend">
+            <span class="legend-item"><span class="score-dot green"></span> Good</span>
+            <span class="legend-item"><span class="score-dot amber"></span> Neutral</span>
+            <span class="legend-item"><span class="score-dot red"></span> Attention</span>
+          </span>
+        </div>
+        <div class="ratings-section">
+          <div class="ratings-period-label">Overall <span class="ratings-period-meta">${DATA.allTime.totalReviews} reviews</span></div>
+          <div class="ratings-grid">${rings}</div>
+        </div>` : ''}
+        ${hasMonthly ? `
+        <div class="section-header">${esc(DATA.monthLabel)} — Ratings by project</div>
+        <div class="project-list-wrap">
+          <table class="project-list">
+            <thead><tr>
+              <th>Date</th><th>Manager</th><th>Client</th>
+              <th class="th-dots">Deadline</th>
+              <th class="th-dots">Response</th>
+              <th class="th-dots">Project Fit</th>
+              <th class="th-dots">Quality Signals</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>` : ''}`;
+    })()}
+
+    ${DATA.feedback.length ? `<div class="section-header">Manager Feedback</div><div class="comment-section">${feedbackHtml}</div>` : ''}
+
+    ${DATA.qacat.length ? `<div class="section-header">${esc(DATA.monthLabel)} — Quality Check</div><div class="qacat-section">${qcatHtml}</div>` : ''}
+
+    ${(DATA.allTime.totalReviews > 0 || DATA.ratings.length > 0 || DATA.qacat.length > 0) ? `
+    <div class="section-header">Summary</div>
+    <div class="summary-section">
+      <div class="summary-grid">
+        <div class="summary-col">
+          <div class="summary-col-header"><span class="summary-marker" style="background:#00BF56"></span>Highlights</div>
+          <ul class="summary-list">
+            ${DATA.summary.strengths.length ? DATA.summary.strengths.map(s => `<li class="summary-item strength">${esc(s)}</li>`).join('') : '<li class="summary-item strength" style="color:var(--text-muted);font-style:italic;">—</li>'}
+          </ul>
+        </div>
+        <div class="summary-col">
+          <div class="summary-col-header"><span class="summary-marker" style="background:#FFBF42"></span>Opportunities for Growth</div>
+          <ul class="summary-list">
+            ${DATA.summary.improvements.length ? DATA.summary.improvements.map(s => `<li class="summary-item improve">${esc(s)}</li>`).join('') : '<li class="summary-item improve" style="color:var(--text-muted);font-style:italic;">—</li>'}
+          </ul>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <div class="page-footer">Data as of ${esc(DATA.dataDate)}</div>
+  `;
+}
+
+/* ============================================================
+   RINGS & BARS ANIMATION
+   ============================================================ */
+const TRACK = '#E8E8E8', LW = 14, SZ = 220, DURATION = 850;
+
+function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function drawRing(canvas, progress, value, color) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, SZ, SZ);
+  const cx = SZ/2, cy = SZ/2, r = cx - LW/2 - 5;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.strokeStyle=TRACK; ctx.lineWidth=LW; ctx.lineCap='butt'; ctx.stroke();
+  const sweep = Math.PI*2*value*progress;
+  if (sweep > 0.001) {
+    ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+sweep); ctx.strokeStyle=color; ctx.lineWidth=LW; ctx.lineCap='round'; ctx.stroke();
+  }
+}
+
+function animateRing(id, value, color, finalLabel, delay) {
+  const canvas = document.getElementById('ring-' + id);
+  const pctEl  = document.getElementById('pct-'  + id);
+  if (!canvas || !pctEl) return;
+  drawRing(canvas, 0, value, color);
+  const go = t0 => now => {
+    const raw = Math.min((now - t0) / DURATION, 1), p = ease(raw);
+    drawRing(canvas, p, value, color);
+    pctEl.textContent = Math.round(value * p * 100) + '%';
+    if (raw < 1) requestAnimationFrame(go(t0));
+    else { drawRing(canvas, 1, value, color); pctEl.textContent = finalLabel; }
+  };
+  setTimeout(() => requestAnimationFrame(n => requestAnimationFrame(go(n))), delay);
+}
+
+function animateBars() {
+  document.querySelectorAll('.bar-fill').forEach((el, i) => {
+    setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 500 + i * 120);
+  });
+}
+
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('canvas.ring').forEach(canvas => {
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
+    img.style.cssText = `width:${canvas.style.width||'110px'};height:${canvas.style.height||'110px'};display:block`;
+    img.classList.add('ring-print-img');
+    canvas.insertAdjacentElement('afterend', img);
+    canvas.style.display = 'none';
+  });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('canvas.ring').forEach(c => c.style.display = '');
+  document.querySelectorAll('.ring-print-img').forEach(img => img.remove());
+});
+
+// Init
+renderPage();
+
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+METRICS.forEach((m, i) => {
+  const { ok, total } = DATA.allTime[m.key];
+  const value = total ? ok / total : 0;
+  const color = renderRingColor(ok, total);
+  const label = fmtPct(ok, total);
+  if (reduced) {
+    const c = document.getElementById('ring-' + m.key); if(c) drawRing(c, 1, value, color);
+    const p = document.getElementById('pct-'  + m.key); if(p) p.textContent = label;
+  } else {
+    window.addEventListener('load', () => animateRing(m.key, value, color, label, i * 100));
+  }
+});
+if (reduced) {
+  document.querySelectorAll('.bar-fill').forEach(el => { el.style.transition='none'; el.style.width=el.dataset.w+'%'; });
+} else {
+  window.addEventListener('load', animateBars);
+}
+
+// Qacat rings & bars
+if (DATA.qacat && DATA.qacat.length) {
+  DATA.qacat.forEach((q, qi) => {
+    const qCanvas = document.getElementById('qacat-ring-' + qi);
+    if (qCanvas) {
+      const isLqa = q.report.trim().toUpperCase().startsWith('LQA');
+      const qVal = q.score / 100;
+      const qColor = qcatScoreColor(q.score, isLqa);
+      if (reduced) {
+        drawRing(qCanvas, 1, qVal, qColor);
+      } else {
+        window.addEventListener('load', () => {
+          const go = t0 => now => {
+            const raw = Math.min((now - t0) / DURATION, 1), p = ease(raw);
+            drawRing(qCanvas, p, qVal, qColor);
+            if (raw < 1) requestAnimationFrame(go(t0));
+          };
+          requestAnimationFrame(n => requestAnimationFrame(go(n)));
+        });
+      }
+    }
+    const maxErr = Math.max(...q.breakdown.map(b => b.count));
+    q.breakdown.forEach((b, i) => {
+      const el = document.getElementById('qbar-' + qi + '-' + i);
+      if (!el) return;
+      const w = maxErr ? Math.round(b.count / maxErr * 100) : 0;
+      if (reduced) { el.style.transition = 'none'; el.style.width = w + '%'; }
+      else window.addEventListener('load', () => setTimeout(() => { el.style.width = w + '%'; }, 600 + i * 120));
+    });
+  });
+}
+</script>
+</body>
+</html>
