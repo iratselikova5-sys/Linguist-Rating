@@ -4,37 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Performance Rating and Feedback</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --blue:        #1566DF;
-  --text:        #212121;
+  --blue:        #007AFF;
+  --text:        #1F1F1F;
   --text-muted:  #9E9E9E;
   --text-label:  #616161;
   --border:      #E0E0E0;
-  --bg-header:   #F5F5F5;
+  --bg-header:   #F5F8FF;
   --bg:          #FFFFFF;
-  --amber:       #F59E0B;
+  --red:         #FF492C;
 }
 
 body {
-  background: #F0F0F0;
-  font-family: 'Roboto', Arial, sans-serif;
+  background: #F0F4FF;
+  font-family: 'Noto Sans', Arial, sans-serif;
   font-size: 15px;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   padding: 32px 16px 64px;
 }
 
-.page { max-width: 980px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); }
+.page { max-width: 980px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
 
 /* Header */
 .page-header { display: flex; align-items: flex-start; gap: 32px; padding: 24px 32px 20px; }
-.logo { flex-shrink:0; background:var(--blue); color:#fff; font-weight:700; font-size:15px; letter-spacing:0.18em; text-transform:uppercase; padding:9px 18px 9px 14px; clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) calc(100% - 14px),calc(100% - 14px) 100%,0 100%); line-height:1.4; white-space:nowrap; }
+.logo { flex-shrink:0; display:block; height:45px; width:auto; }
 .header-info { display:flex; flex-direction:column; gap:3px; }
-.header-title { font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
+.header-title { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
 .header-desc { font-size:13px; color:var(--text-label); line-height:1.55; margin-top:6px; max-width:680px; }
 
 /* Divider */
@@ -43,12 +43,12 @@ body {
 /* Billing */
 .billing { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:24px 32px 28px; }
 .billing-col + .billing-col { border-left:1px solid var(--border); padding-left:32px; }
-.billing-col-label { font-weight:700; font-size:13px; color:var(--text); margin-bottom:12px; }
+.billing-col-label { font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.04em; color:var(--text); margin-bottom:12px; }
 .billing-field { display:flex; flex-direction:column; gap:1px; margin-bottom:10px; }
 .field-label { font-size:13px; color:var(--text-muted); }
 .field-value { font-size:13px; color:var(--text); line-height:1.5; }
 .tags-wrap { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
-.tag { background:#EEF3FC; color:var(--blue); border-radius:3px; padding:3px 9px; font-size:13px; font-weight:500; }
+.tag { background:#F5F8FF; color:var(--blue); border-radius:9999px; padding:3px 10px; font-size:13px; font-weight:500; }
 
 /* Task bars */
 .task-bar-row { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
@@ -60,7 +60,7 @@ body {
 .bar-fill { height:100%; background:var(--blue); border-radius:2px; width:0%; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
 
 /* Section header */
-.section-header { background:var(--bg-header); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:9px 32px; font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; }
+.section-header { background:var(--bg-header); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:9px 32px; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text); display:flex; align-items:center; justify-content:space-between; }
 
 /* Rings */
 .ratings-section { padding:28px 32px 32px; border-bottom:1px solid var(--border); }
@@ -90,12 +90,17 @@ canvas.ring { width:110px; height:110px; display:block; }
 .score-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .score-dot.green { background:#27AE60; }
 .score-dot.amber { background:#1566DF; }
-.score-dot.red   { background:#C62828; }
+.score-dot.red   { background:#FF492C; }
 .score-dot.gray  { background:#D5D5D5; }
 
 /* Legend */
 .table-legend { display:flex; gap:16px; }
 .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
+
+/* Empty ratings state */
+.no-ratings { padding:40px 32px; text-align:center; }
+.no-ratings-title { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.no-ratings-text { font-size:14px; color:var(--text-muted); line-height:1.6; max-width:400px; margin:0 auto; }
 
 /* Feedback */
 .comment-section { padding:20px 32px 28px; }
@@ -105,7 +110,49 @@ canvas.ring { width:110px; height:110px; display:block; }
 .feedback-author { font-size:13px; font-weight:500; color:var(--text); }
 .feedback-date { font-size:13px; color:var(--text-muted); }
 .feedback-divider { height:1px; background:var(--border); margin:18px 0; }
-.feedback-empty { font-size:13px; color:var(--text-muted); }
+
+/* Quality Check (Qacat) section */
+.qacat-section { padding:24px 32px 28px; border-bottom:1px solid var(--border); }
+.qacat-meta { font-size:12px; color:var(--text-muted); margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.qacat-grid { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; }
+.qacat-score-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+.qacat-score-label { font-size:13px; font-weight:500; color:var(--text); }
+.qacat-score-ring { position:relative; width:110px; height:110px; }
+.qacat-score-ring canvas { width:110px; height:110px; display:block; }
+.qacat-score-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; pointer-events:none; }
+.qacat-score-num { font-size:16px; font-weight:700; color:var(--text); line-height:1; }
+.qacat-score-sub { font-size:11px; color:var(--text-muted); line-height:1; }
+.qacat-stats { display:flex; flex-direction:column; gap:10px; min-width:130px; }
+.qacat-stat { display:flex; flex-direction:column; gap:2px; }
+.qacat-stat-val { font-size:20px; font-weight:700; color:var(--text); line-height:1; }
+.qacat-stat-lbl { font-size:12px; color:var(--text-muted); }
+.qacat-bars { flex:1; min-width:200px; display:flex; flex-direction:column; gap:10px; }
+.qacat-bar-row { display:flex; flex-direction:column; gap:4px; }
+.qacat-bar-top { display:flex; justify-content:space-between; align-items:baseline; }
+.qacat-bar-label { font-size:13px; color:var(--text); }
+.qacat-bar-count { font-size:13px; font-weight:700; color:var(--text); }
+.qacat-bar-track { height:8px; background:#EEEEEE; border-radius:4px; overflow:hidden; }
+.qacat-bar-fill { height:100%; border-radius:4px; width:0; transition:width 0.9s cubic-bezier(0.4,0,0.2,1); }
+
+/* Qacat badge (Pass / Attention / Fail) */
+.qacat-badge { display:inline-block; border-radius:9999px; padding:3px 12px; font-size:13px; font-weight:700; margin-top:6px; }
+
+/* Multiple qacat projects */
+.qacat-project { padding-top:20px; border-top:1px solid var(--border); }
+.qacat-project:first-child { border-top:none; padding-top:0; }
+.qacat-project + .qacat-project { margin-top:4px; }
+
+/* Summary */
+.summary-section { padding:24px 32px 32px; }
+.summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.summary-col + .summary-col { border-left:1px solid var(--border); padding-left:28px; }
+.summary-col-header { display:flex; align-items:center; gap:8px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; color:var(--text); margin-bottom:16px; }
+.summary-marker { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.summary-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.summary-item { font-size:14px; color:var(--text); line-height:1.6; padding-left:18px; position:relative; }
+.summary-item::before { content:''; position:absolute; left:0; top:8px; width:7px; height:7px; border-radius:50%; }
+.summary-item.strength::before { background:#00BF56; }
+.summary-item.improve::before { background:#FFBF42; }
 
 /* Footer */
 .page-footer { border-top:1px solid var(--border); padding:12px 32px; font-size:13px; color:var(--text-muted); text-align:right; }
@@ -150,24 +197,59 @@ const DATA = {
   // All-time scores
   allTime: {
     totalReviews: 20,
-    deadline:  { ok: 20, total: 20 },  // 100% — blue ring
-    response:  { ok: 17, total: 20 },  // 85%  — amber ring
-    fit:       { ok: 20, total: 20 },  // 100% — blue ring
+    deadline:  { ok: 20, total: 20 },  // 100% — green ring
+    response:  { ok: 17, total: 20 },  // 85%  — blue ring
+    fit:       { ok: 20, total: 20 },  // 100% — green ring
     quality:   { ok: 14, total: 20 },  // 70%  — red ring
-    retention: { ok: 18, total: 20 }   // 90%  — amber ring
   },
 
-  // Table header — reporting period
-  monthLabel: 'Previous Month YYYY',
+  // Table header — reporting period (auto-computed as previous month)
+  monthLabel: (() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - 1);
+    return d.toLocaleString('en-US', { month: 'long' }) + ' ' + d.getFullYear();
+  })(),
 
-  // Table rows
-  // score: 1 = green dot, 0.5 = amber dot, 0 = red dot
+  // Table rows — score: 1 = green dot, 0.5 = amber dot, 0 = red dot
   ratings: [
-    { date: 'Mon 1',  manager: 'Manager Name', client: 'customer-id-1', dl:1,   rs:1,   pf:1,   qs:1,   rt:1   },
-    { date: 'Mon 7',  manager: 'Manager Name', client: 'customer-id-1', dl:1,   rs:0.5, pf:1,   qs:1,   rt:1   },
-    { date: 'Mon 7',  manager: 'Manager Name', client: 'customer-id-2', dl:1,   rs:1,   pf:0.5, qs:0.5, rt:1   },
-    { date: 'Mon 14', manager: 'Manager Name', client: 'customer-id-2', dl:1,   rs:1,   pf:1,   qs:0,   rt:0   },
-    { date: 'Mon 21', manager: 'Manager Name', client: 'customer-id-3', dl:0.5, rs:1,   pf:1,   qs:1,   rt:1   },
+    { date: 'Mon 1',  manager: 'Manager Name', client: 'client-id-1', dl:1,   rs:1,   pf:1,   qs:1   },
+    { date: 'Mon 7',  manager: 'Manager Name', client: 'client-id-1', dl:1,   rs:0.5, pf:1,   qs:1   },
+    { date: 'Mon 7',  manager: 'Manager Name', client: 'client-id-2', dl:1,   rs:1,   pf:0.5, qs:0.5 },
+    { date: 'Mon 14', manager: 'Manager Name', client: 'client-id-2', dl:1,   rs:1,   pf:1,   qs:0   },
+    { date: 'Mon 21', manager: 'Manager Name', client: 'client-id-3', dl:0.5, rs:1,   pf:1,   qs:1   },
+  ],
+
+  // Quality Check data from Qacat.
+  // report: title shown in the section. Starts with 'LQA' → shows Pass/Attention/Fail badge.
+  // Leave the array empty if there is no Qacat data for this period.
+  qacat: [
+    {
+      report:  'AIQA | project | Month YYYY',
+      score:   88.0,
+      words:   5000,
+      errors:  20,
+      density: 4.0,
+      breakdown: [
+        { label: 'AI Quality', count: 10, color: '#FFBF42' },
+        { label: 'Glossary',   count: 8,  color: '#0F1BC5' },
+        { label: 'DNT',        count: 2,  color: '#C2185B' },
+      ]
+    },
+    {
+      report:  'LQA | project | Month YYYY',
+      score:   94.5,
+      words:   320,
+      errors:  9,
+      density: 28.13,
+      breakdown: [
+        { label: 'Readability / Expression', count: 4, color: '#FF492C' },
+        { label: 'Grammar and/or Syntax',    count: 2, color: '#FFBF42' },
+        { label: 'Mistranslation',           count: 1, color: '#0F1BC5' },
+        { label: 'Language Style and Tone',  count: 1, color: '#007AFF' },
+        { label: 'Source Not Translated',    count: 1, color: '#C2185B' },
+      ]
+    }
   ],
 
   // Feedback entries — add objects { text, author, role, date }
@@ -176,11 +258,23 @@ const DATA = {
     { text: 'Feedback text goes here — a short note from the manager about the quality of work on the project.', author: 'Manager Name', role: 'Project Manager', date: 'Mon DD, YYYY' },
   ],
 
+  // Summary — one short sentence per item
+  summary: {
+    strengths: [
+      'Highlight 1.',
+      'Highlight 2.',
+    ],
+    improvements: [
+      'Growth point 1.',
+      'Growth point 2.',
+    ]
+  },
+
   dataDate: 'DD Month YYYY'
 };
 
 /* ============================================================
-   RENDER — не трогай этот блок
+   RENDER
    ============================================================ */
 
 const METRICS = [
@@ -188,7 +282,6 @@ const METRICS = [
   { key:'response', label:'Response',       desc:'How quickly did you respond to emails, queries, or comments in the project?' },
   { key:'fit',      label:'Project Fit',    desc:'Is your style/tone appropriate for the project?' },
   { key:'quality',  label:'Quality Signals',desc:'Were there any good or bad quality-related issues reported by reviewers or clients?' },
-  { key:'retention',label:'Retention',      desc:'Would we be happy to collaborate again on future projects?' },
 ];
 
 function pct(ok, total) { return total ? Math.round(ok / total * 1000) / 10 : 0; }
@@ -198,18 +291,26 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 function renderRingColor(ok, total) {
   const p = pct(ok, total);
-  return p >= 95 ? '#27AE60' : p >= 85 ? '#1566DF' : '#C62828';
+  return p >= 95 ? '#00BF56' : p >= 85 ? '#007AFF' : '#FF492C';
+}
+
+function qcatScoreColor(score, isLqa) {
+  if (isLqa) return score >= 95 ? '#00BF56' : score >= 92 ? '#FFBF42' : '#FF492C';
+  return score >= 95 ? '#00BF56' : score >= 85 ? '#007AFF' : '#FF492C';
+}
+
+function lqaBadge(score) {
+  if (score >= 95) return { text: 'Pass',      bg: '#E8F8EF', color: '#00873C' };
+  if (score >= 92) return { text: 'Attention', bg: '#FFF8E1', color: '#B45309' };
+  return              { text: 'Fail',      bg: '#FFF0EE', color: '#CC2A0E' };
 }
 
 function renderPage() {
-  const multiClient = true;
   const maxTasks = Math.max(DATA.tasks.thirty, DATA.tasks.ninety, DATA.tasks.year) || 1;
 
-  // ── Specialization tags ──
   const tags = DATA.linguist.specialization.map(s =>
     `<span class="tag">${esc(s)}</span>`).join('');
 
-  // ── Task bars ──
   const bars = [
     { label: '30 days',   val: DATA.tasks.thirty },
     { label: '90 days',   val: DATA.tasks.ninety },
@@ -223,8 +324,7 @@ function renderPage() {
       <div class="bar-track"><div class="bar-fill" data-w="${(b.val / maxTasks * 100).toFixed(1)}"></div></div>
     </div>`).join('');
 
-  // ── Ring charts ──
-  const rings = METRICS.map((m, i) => {
+  const rings = METRICS.map((m) => {
     const { ok, total } = DATA.allTime[m.key];
     const color = renderRingColor(ok, total);
     return `
@@ -241,23 +341,61 @@ function renderPage() {
       </div>`;
   }).join('');
 
-  // ── Table rows ──
   const tableRows = DATA.ratings.map(r => {
-    const clientCell = multiClient
-      ? `<td class="td-client">${esc(r.client)}</td>` : '';
-    const scores = ['dl','rs','pf','qs','rt'].map(k =>
+    const scores = ['dl','rs','pf','qs'].map(k =>
       `<td><div class="dots-row"><span class="score-dot ${dotClass(r[k])}"></span></div></td>`
     ).join('');
-    return `<tr><td>${esc(r.date)}</td><td>${esc(r.manager)}</td>${clientCell}${scores}</tr>`;
+    return `<tr><td>${esc(r.date)}</td><td>${esc(r.manager)}</td><td class="td-client">${esc(r.client)}</td>${scores}</tr>`;
   }).join('');
 
-  const clientHeader = multiClient ? '<th>Client</th>' : '';
+  const qcatHtml = DATA.qacat.map((q, qi) => {
+    const isLqa = q.report.trim().toUpperCase().startsWith('LQA');
+    const badge = isLqa ? lqaBadge(q.score) : null;
+    return `
+    <div class="qacat-project">
+      <div class="qacat-meta">
+        <span>${esc(q.report)}</span>
+        ${isLqa ? `<span class="table-legend">
+          <span class="legend-item"><span class="score-dot" style="background:#00BF56"></span> 95–100 Pass</span>
+          <span class="legend-item"><span class="score-dot" style="background:#FFBF42"></span> 92–94.99 Attention</span>
+          <span class="legend-item"><span class="score-dot" style="background:#FF492C"></span> &lt;92 Fail</span>
+        </span>` : ''}
+      </div>
+      <div class="qacat-grid">
+        <div class="qacat-score-wrap">
+          <div class="qacat-score-ring">
+            <canvas id="qacat-ring-${qi}" width="220" height="220"></canvas>
+            <div class="qacat-score-inner">
+              <span class="qacat-score-num">${q.score}</span>
+              <span class="qacat-score-sub">/ 100</span>
+            </div>
+          </div>
+          <span class="qacat-score-label">Quality Score</span>
+          ${badge ? `<span class="qacat-badge" style="background:${badge.bg};color:${badge.color}">${badge.text}</span>` : ''}
+        </div>
+        <div class="qacat-stats">
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.words.toLocaleString()}</span><span class="qacat-stat-lbl">Words</span></div>
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.errors}</span><span class="qacat-stat-lbl">Errors</span></div>
+          <div class="qacat-stat"><span class="qacat-stat-val">${q.density}</span><span class="qacat-stat-lbl">Error density</span></div>
+        </div>
+        <div class="qacat-bars">
+          ${q.breakdown.map((b, i) => `
+          <div class="qacat-bar-row">
+            <div class="qacat-bar-top">
+              <span class="qacat-bar-label">${esc(b.label)}</span>
+              <span class="qacat-bar-count">${b.count}</span>
+            </div>
+            <div class="qacat-bar-track">
+              <div class="qacat-bar-fill" id="qbar-${qi}-${i}" style="background:${b.color}"></div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 
-  // ── Feedback ──
-  let feedbackHtml;
-  if (!DATA.feedback.length) {
-    feedbackHtml = '<p class="feedback-empty">No feedback yet.</p>';
-  } else {
+  let feedbackHtml = '';
+  if (DATA.feedback.length) {
     feedbackHtml = DATA.feedback.map((f, i) => `
       ${i > 0 ? '<div class="feedback-divider"></div>' : ''}
       <div class="feedback-item">
@@ -271,7 +409,10 @@ function renderPage() {
 
   document.getElementById('page').innerHTML = `
     <div class="page-header">
-      <div class="logo">Alconost</div>
+      <svg class="logo" width="258" height="45" viewBox="0 0 258 45" fill="none">
+        <polygon fill="#007AFF" points="147.909317 0 0 0 0 45 228.03354 45 228.03354 30 243 30 243 14.9464286 258 15 258 0"/>
+        <path d="M30,15 L30,30 L27.0290792,30 L27,24 L18.0473667,24 L18.0473667,30 L15,30 L15,15 L30,15 Z M199,15 L214,15 L214,18 L208,18 L208,30 L205,30 L205,18.0319149 L199,18.0319149 L199,15 Z M188,30 L173.01958,30 L173.01958,27 L185,27 L185,24 L173.01958,24 L173.01958,15 L188,15 L188,18.0319149 L176,18.0319149 L176,21 L188,21 L188,30 Z M135,30 L132,30 L132,18 L123,18.0319149 L123,30 L120,30 L120,15 L135,15 L135,30 Z M93,30 L93,15 L109,15 L109,30 L93,30 Z M96,27 L106,27 L106,18 L96,18 L96,27 Z M146,30 L146,15 L162,15 L162,30 L146,30 Z M149,27 L159,27 L159,18 L149,18 L149,27 Z M82,27 L82,30 L67,30 L67,15 L82,15 L82,18.0319149 L70,18.0319149 L70,27 L82,27 Z M41,30 L41,15 L44,15 L44,27 L56,27 L56,30 L41,30 Z M27,18.0319149 L18,18.0319149 L18,21 L27,21 L27,18.0319149 Z" fill="#FFF"/>
+      </svg>
       <div class="header-info">
         <div class="header-title">Performance Rating and Feedback</div>
         <div class="header-desc">Here you can view your project ratings and feedback. We share this information to promote transparency, recognize your contributions, support your professional growth, and help you track your progress across projects.</div>
@@ -301,39 +442,69 @@ function renderPage() {
       </div>
     </div>
 
-    <div class="section-header">Project Ratings</div>
+    ${(() => {
+      const hasAllTime = DATA.allTime.totalReviews > 0;
+      const hasMonthly = DATA.ratings.length > 0;
+      const hasQacat   = DATA.qacat.length > 0;
+      if (!hasAllTime && !hasMonthly && !hasQacat) return `
+        <div class="section-header">Project Ratings</div>
+        <div class="no-ratings">
+          <div class="no-ratings-title">No ratings yet</div>
+          <div class="no-ratings-text">As soon as your managers share their ratings, we'll make them available here.</div>
+        </div>`;
+      if (!hasAllTime && !hasMonthly) return '';
+      return `
+        ${hasAllTime ? `
+        <div class="section-header">
+          Project Ratings
+          <span class="table-legend">
+            <span class="legend-item"><span class="score-dot green"></span> Good</span>
+            <span class="legend-item"><span class="score-dot amber"></span> Neutral</span>
+            <span class="legend-item"><span class="score-dot red"></span> Attention</span>
+          </span>
+        </div>
+        <div class="ratings-section">
+          <div class="ratings-period-label">Overall <span class="ratings-period-meta">${DATA.allTime.totalReviews} reviews</span></div>
+          <div class="ratings-grid">${rings}</div>
+        </div>` : ''}
+        ${hasMonthly ? `
+        <div class="section-header">${esc(DATA.monthLabel)} — Ratings by project</div>
+        <div class="project-list-wrap">
+          <table class="project-list">
+            <thead><tr>
+              <th>Date</th><th>Manager</th><th>Client</th>
+              <th class="th-dots">Deadline</th>
+              <th class="th-dots">Response</th>
+              <th class="th-dots">Project Fit</th>
+              <th class="th-dots">Quality Signals</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>` : ''}`;
+    })()}
 
-    <div class="ratings-section">
-      <div class="ratings-period-label">All time <span class="ratings-period-meta">${DATA.allTime.totalReviews} reviews</span></div>
-      <div class="ratings-grid">${rings}</div>
-    </div>
+    ${DATA.feedback.length ? `<div class="section-header">Manager Feedback</div><div class="comment-section">${feedbackHtml}</div>` : ''}
 
-    <div class="section-header">
-      ${esc(DATA.monthLabel)} — Ratings by project
-      <span class="table-legend">
-        <span class="legend-item"><span class="score-dot green"></span> Good</span>
-        <span class="legend-item"><span class="score-dot amber"></span> Neutral</span>
-        <span class="legend-item"><span class="score-dot red"></span> Attention</span>
-      </span>
-    </div>
-    <div class="project-list-wrap">
-      <table class="project-list">
-        <thead>
-          <tr>
-            <th>Date</th><th>Manager</th>${clientHeader}
-            <th class="th-dots">Deadline</th>
-            <th class="th-dots">Response</th>
-            <th class="th-dots">Project Fit</th>
-            <th class="th-dots">Quality Signals</th>
-            <th class="th-dots">Retention</th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    </div>
+    ${DATA.qacat.length ? `<div class="section-header">${esc(DATA.monthLabel)} — Quality Check</div><div class="qacat-section">${qcatHtml}</div>` : ''}
 
-    <div class="section-header">Feedback</div>
-    <div class="comment-section">${feedbackHtml}</div>
+    ${(DATA.allTime.totalReviews > 0 || DATA.ratings.length > 0 || DATA.qacat.length > 0) ? `
+    <div class="section-header">Summary</div>
+    <div class="summary-section">
+      <div class="summary-grid">
+        <div class="summary-col">
+          <div class="summary-col-header"><span class="summary-marker" style="background:#00BF56"></span>Highlights</div>
+          <ul class="summary-list">
+            ${DATA.summary.strengths.length ? DATA.summary.strengths.map(s => `<li class="summary-item strength">${esc(s)}</li>`).join('') : '<li class="summary-item strength" style="color:var(--text-muted);font-style:italic;">—</li>'}
+          </ul>
+        </div>
+        <div class="summary-col">
+          <div class="summary-col-header"><span class="summary-marker" style="background:#FFBF42"></span>Opportunities for Growth</div>
+          <ul class="summary-list">
+            ${DATA.summary.improvements.length ? DATA.summary.improvements.map(s => `<li class="summary-item improve">${esc(s)}</li>`).join('') : '<li class="summary-item improve" style="color:var(--text-muted);font-style:italic;">—</li>'}
+          </ul>
+        </div>
+      </div>
+    </div>` : ''}
 
     <div class="page-footer">Data as of ${esc(DATA.dataDate)}</div>
   `;
@@ -413,6 +584,38 @@ if (reduced) {
   document.querySelectorAll('.bar-fill').forEach(el => { el.style.transition='none'; el.style.width=el.dataset.w+'%'; });
 } else {
   window.addEventListener('load', animateBars);
+}
+
+// Qacat rings & bars
+if (DATA.qacat && DATA.qacat.length) {
+  DATA.qacat.forEach((q, qi) => {
+    const qCanvas = document.getElementById('qacat-ring-' + qi);
+    if (qCanvas) {
+      const isLqa = q.report.trim().toUpperCase().startsWith('LQA');
+      const qVal = q.score / 100;
+      const qColor = qcatScoreColor(q.score, isLqa);
+      if (reduced) {
+        drawRing(qCanvas, 1, qVal, qColor);
+      } else {
+        window.addEventListener('load', () => {
+          const go = t0 => now => {
+            const raw = Math.min((now - t0) / DURATION, 1), p = ease(raw);
+            drawRing(qCanvas, p, qVal, qColor);
+            if (raw < 1) requestAnimationFrame(go(t0));
+          };
+          requestAnimationFrame(n => requestAnimationFrame(go(n)));
+        });
+      }
+    }
+    const maxErr = Math.max(...q.breakdown.map(b => b.count));
+    q.breakdown.forEach((b, i) => {
+      const el = document.getElementById('qbar-' + qi + '-' + i);
+      if (!el) return;
+      const w = maxErr ? Math.round(b.count / maxErr * 100) : 0;
+      if (reduced) { el.style.transition = 'none'; el.style.width = w + '%'; }
+      else window.addEventListener('load', () => setTimeout(() => { el.style.width = w + '%'; }, 600 + i * 120));
+    });
+  });
 }
 </script>
 </body>
